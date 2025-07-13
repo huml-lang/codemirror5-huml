@@ -1,0 +1,22 @@
+{
+    "name": "@huml-lang/codemirror5-huml",
+    "version": "0.1.0",
+    "description": "HUML language support for CodeMirror 5",
+    "scripts": {
+        "build": "bun build ./index.js --outfile=dist/codemirror5-huml.min.js --minify --target=browser --format=iife --external=codemirror"
+    },
+    "keywords": [
+        "editor",
+        "code",
+        "huml",
+        "codemirror",
+        "codemirror5"
+    ],
+    "author": "Kailash Nadh",
+    "homepage": "https://huml.io",
+    "main": "dist/codemirror5-huml.min.js",
+    "license": "MIT",
+    "peerDependencies": {
+        "codemirror": "^5.65.0"
+    }
+}
