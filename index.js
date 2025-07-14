@@ -22,13 +22,22 @@ CodeMirror.defineMode("huml", function () {
         token: function (stream, state) {
             // Handle multiline strings.
             if (state.inMultilineString) {
-                if (stream.match(state.inMultilineString)) {
+                // Look for the closing delimiter
+                var closeDelim = state.inMultilineString;
+                var content = stream.string.slice(stream.pos);
+                var closeIndex = content.indexOf(closeDelim);
+
+                if (closeIndex >= 0) {
+                    // Found closing delimiter - consume everything up to and including it
+                    stream.pos += closeIndex + closeDelim.length;
                     state.inMultilineString = null;
                     state.multilineStringIndent = 0;
                     return "string";
+                } else {
+                    // No closing delimiter on this line - consume rest of line
+                    stream.skipToEnd();
+                    return "string";
                 }
-                stream.skipToEnd();
-                return "string";
             }
 
             // Handle start of line.
@@ -46,9 +55,44 @@ CodeMirror.defineMode("huml", function () {
             }
 
             // Multiline string starters.
-            if (stream.match('"""') || stream.match('```')) {
-                state.inMultilineString = stream.current();
+            if (stream.match('"""')) {
+                var delimiter = '"""';
+                state.inMultilineString = delimiter;
                 state.multilineStringIndent = stream.indentation();
+
+                // Check if closing delimiter is on the same line.
+                var remaining = stream.string.slice(stream.pos);
+                var closeIndex = remaining.indexOf(delimiter);
+
+                if (closeIndex >= 0) {
+                    // Closing delimiter on same line - consume everything including closing delimiter.
+                    stream.pos += closeIndex + delimiter.length;
+                    state.inMultilineString = null;
+                    state.multilineStringIndent = 0;
+                } else {
+                    // No closing delimiter on this line - consume rest of line.
+                    stream.skipToEnd();
+                }
+                return "string";
+            }
+            if (stream.match('```')) {
+                var delimiter = '```';
+                state.inMultilineString = delimiter;
+                state.multilineStringIndent = stream.indentation();
+
+                // Check if closing delimiter is on the same line
+                var remaining = stream.string.slice(stream.pos);
+                var closeIndex = remaining.indexOf(delimiter);
+
+                if (closeIndex >= 0) {
+                    // Closing delimiter on same line - consume everything including closing delimiter.
+                    stream.pos += closeIndex + delimiter.length;
+                    state.inMultilineString = null;
+                    state.multilineStringIndent = 0;
+                } else {
+                    // No closing delimiter on this line - consume rest of line.
+                    stream.skipToEnd();
+                }
                 return "string";
             }
 
